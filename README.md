@@ -29,7 +29,7 @@ Add it in your root build.gradle at the end of repositories:
 and add to dependencies
 ```groovy
     dependencies {
-	        compile 'com.github.allan1st:Toothpick:0.1.0'
+	        compile 'com.github.allan1st:Toothpick:0.2.0'
 	}
 ```
 
