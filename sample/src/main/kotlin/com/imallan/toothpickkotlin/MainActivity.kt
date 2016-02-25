@@ -3,6 +3,7 @@ package com.imallan.toothpickkotlin
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import com.imallan.toothpick.OnClick
@@ -19,8 +20,8 @@ class MainActivity : AppCompatActivity() {
         Toothpick.bind(this)
     }
 
-    @OnClick(R.id.button_press_me) fun showToast() {
-        toastShort("Pressed ${mButton.id}")
+    @OnClick(R.id.button_press_me) fun showToast(view: View) {
+        toastShort("Pressed ${view.id}")
     }
 }
 

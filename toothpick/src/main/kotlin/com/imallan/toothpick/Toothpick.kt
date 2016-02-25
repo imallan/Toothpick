@@ -6,7 +6,6 @@ import android.app.Activity
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.view.View
-import java.lang.reflect.InvocationTargetException
 
 object Toothpick {
 
@@ -23,19 +22,16 @@ object Toothpick {
         for (method in clazz.declaredMethods) {
             if (method.isAnnotationPresent(OnClick::class.java)) {
                 val annotation = method.getAnnotation(OnClick::class.java)
-                val onclick: View.OnClickListener = View.OnClickListener {
-                    //noinspection TryWithIdenticalCatches
-                    try {
-                        method.invoke(obj)
-                    } catch (e: IllegalAccessException) {
-                        e.printStackTrace()
-                    } catch (e: InvocationTargetException) {
-                        e.printStackTrace()
-                    }
-                }
                 val values = annotation.value
                 for (id: Int in values) {
-                    func(id)?.setOnClickListener(onclick)
+                    val view = func(id)
+                    view?.setOnClickListener({
+                        try {
+                            method.invoke(obj, view)
+                        } catch (e: IllegalArgumentException) {
+                            method.invoke(obj)
+                        }
+                    })
                 }
             }
         }
