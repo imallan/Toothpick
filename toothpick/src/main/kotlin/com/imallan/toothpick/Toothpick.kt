@@ -53,3 +53,9 @@ fun <V : View> Fragment.bind(@IdRes id: Int): Lazy<V> {
     }
 }
 
+fun <V : View> bind(@IdRes id: Int, view: View?): Lazy<V> {
+    return lazy {
+        @Suppress("UNCHECKED_CAST")
+        (view?.findViewById(id)  as V)
+    }
+}
