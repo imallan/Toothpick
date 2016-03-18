@@ -88,11 +88,18 @@ public class OnClickProcessor extends AbstractProcessor {
             Element parentClass = mMapType.get(key);
 
             ClassName activity = ClassName.get(ACTIVITY_TYPE_PACKAGE, ACTIVITY_TYPE_SIMPLE_NAME);
+            ClassName view = ClassName.get(VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME);
+            ClassName object = ClassName.get("java.lang", "Object");
 
-            MethodSpec.Builder bindBuilder = MethodSpec.methodBuilder("bindActivity")
+            MethodSpec.Builder bindActivityBuilder = MethodSpec.methodBuilder("bindActivity")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(activity, "activity", Modifier.FINAL)
-//                    .addAnnotation(Override.class)
+                    .returns(void.class);
+
+            MethodSpec.Builder bindViewBuilder = MethodSpec.methodBuilder("bindView")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameter(object, "object", Modifier.FINAL)
+                    .addParameter(view, "view", Modifier.FINAL)
                     .returns(void.class);
 
             List<? extends Element> enclosedElements = parentClass.getEnclosedElements();
@@ -101,19 +108,22 @@ public class OnClickProcessor extends AbstractProcessor {
                     OnClickView annotation = enclosedElement.getAnnotation(OnClickView.class);
                     if (annotation != null) {
                         for (int id : annotation.value()) {
-                            bindBuilder.addStatement("activity.findViewById(" + id + ")" +
+                            bindActivityBuilder.addStatement("activity.findViewById(" + id + ")" +
                                     ".setOnClickListener($L)", getTypeSpec(enclosedElement));
+                            bindViewBuilder.addStatement("view.findViewById(" + id + ")" +
+                                    ".setOnClickListener($L)", getTypeSpecForView(enclosedElement));
                         }
                     }
                 }
             }
-            MethodSpec bind = bindBuilder.build();
+            MethodSpec bindActivity = bindActivityBuilder.build();
+            MethodSpec bindView = bindViewBuilder.build();
 
             TypeSpec viewInjector =
                     TypeSpec.classBuilder(parentClass.getSimpleName() + "$$ViewInjector")
                             .addModifiers(Modifier.PUBLIC)
-//                            .addSuperinterface(Bindable.class)
-                            .addMethod(bind)
+                            .addMethod(bindActivity)
+                            .addMethod(bindView)
                             .build();
 
 
@@ -129,6 +139,37 @@ public class OnClickProcessor extends AbstractProcessor {
         }
 
         return true;
+    }
+
+
+    private TypeSpec getTypeSpecForView(Element annotatedElement) {
+        ClassName view = ClassName.get(VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME);
+        ClassName onClickListener = ClassName.get(
+                VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME,
+                "OnClickListener"
+        );
+
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("onClick")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .returns(void.class)
+                .addParameter(view, "v");
+
+        Element enclosingElement = annotatedElement.getEnclosingElement();
+        ClassName parentName = ClassName.get(enclosingElement.getEnclosingElement().toString(),
+                enclosingElement.getSimpleName().toString());
+        if (((ExecutableElement) annotatedElement).getParameters().size() > 0) {
+            builder.addStatement("(($T)object).$L(v)", parentName, annotatedElement.getSimpleName());
+        } else {
+            builder.addStatement("(($T)object).$L()", parentName, annotatedElement.getSimpleName());
+        }
+        return TypeSpec.anonymousClassBuilder("")
+                .addSuperinterface(onClickListener)
+                .addMethod(builder
+                        .build()
+                )
+                .build();
     }
 
     private TypeSpec getTypeSpec(Element annotatedElement) {

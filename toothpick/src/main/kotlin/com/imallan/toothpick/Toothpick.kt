@@ -12,6 +12,7 @@ import java.util.*
 object Toothpick {
 
     private val mMethodMap = LinkedHashMap<String, Method>();
+    private val mMethodMapForView = LinkedHashMap<String, Method>();
 
     fun bind(activity: Activity) {
         val simpleName = activity.javaClass.simpleName
@@ -25,9 +26,17 @@ object Toothpick {
     }
 
     fun bind(obj: Any, view: View) {
-        bind(obj) { view.findViewById(it) }
+        val simpleName = obj.javaClass.simpleName
+        var bindMethod = mMethodMap[simpleName]
+        if (mMethodMapForView[simpleName] == null) {
+            val clazz = Class.forName(obj.javaClass.canonicalName + "\$\$ViewInjector")
+            bindMethod = clazz.getDeclaredMethod("bindView", Any::class.java, View::class.java)
+            mMethodMapForView.put(simpleName, bindMethod)
+        }
+        bindMethod!!.invoke(null, obj, view)
     }
 
+    @Deprecated("No need to use reflections anymore")
     private fun bind(obj: Any, func: (id: Int) -> View?) {
         val clazz = obj.javaClass
         for (method in clazz.declaredMethods) {

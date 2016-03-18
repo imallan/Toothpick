@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val start = SystemClock.currentThreadTimeMillis()
-        Toothpick.bind(this)
+        Toothpick.bind(this, window.decorView)
         Log.d("TIMEUSED", (SystemClock.currentThreadTimeMillis() - start).toString())
     }
 
