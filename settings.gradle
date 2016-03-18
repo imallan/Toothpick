@@ -1,1 +1,1 @@
-include ':sample', ':toothpick'
+include ':sample', ':toothpick', ':annotation', ':compiler'

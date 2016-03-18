@@ -6,11 +6,22 @@ import android.app.Activity
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.view.View
+import java.lang.reflect.Method
+import java.util.*
 
 object Toothpick {
 
+    private val mMethodMap = LinkedHashMap<String, Method>();
+
     fun bind(activity: Activity) {
-        bind(activity) { activity.findViewById(it) }
+        val simpleName = activity.javaClass.simpleName
+        var bindMethod = mMethodMap[simpleName]
+        if (mMethodMap[simpleName] == null) {
+            val clazz = Class.forName(activity.packageName + "." + simpleName + "\$\$ViewInjector")
+            bindMethod = clazz.getDeclaredMethod("bind", Activity::class.java)
+            mMethodMap.put(simpleName, bindMethod)
+        }
+        bindMethod!!.invoke(null, activity)
     }
 
     fun bind(obj: Any, view: View) {
