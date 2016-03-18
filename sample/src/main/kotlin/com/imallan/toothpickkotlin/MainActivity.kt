@@ -20,19 +20,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val start = SystemClock.currentThreadTimeMillis()
-        for (i in 0..10000) {
-            Toothpick.bind(this)
-        }
+        Toothpick.bind(this)
         Log.d("TIMEUSED", (SystemClock.currentThreadTimeMillis() - start).toString())
     }
 
-    @OnClickView(R.id.button_press_me) fun showToast(view: View) {
+    @OnClickView(R.id.button_press_me, R.id.button_press_me_2) fun showToast(view: View) {
         toastShort("Pressed ${view.id}")
     }
 
-    @OnClickView(R.id.button_press_me_2) fun showThost() {
-        toastShort("Pressed")
-    }
+    //    @OnClickView(R.id.button_press_me_2) fun showThost() {
+    //        toastShort("Pressed")
+    //    }
 }
 
 fun Context.toastShort(msg: String) {

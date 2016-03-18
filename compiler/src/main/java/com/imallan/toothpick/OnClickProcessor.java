@@ -89,7 +89,7 @@ public class OnClickProcessor extends AbstractProcessor {
 
             ClassName activity = ClassName.get(ACTIVITY_TYPE_PACKAGE, ACTIVITY_TYPE_SIMPLE_NAME);
 
-            MethodSpec.Builder bindBuilder = MethodSpec.methodBuilder("bind")
+            MethodSpec.Builder bindBuilder = MethodSpec.methodBuilder("bindActivity")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(activity, "activity", Modifier.FINAL)
 //                    .addAnnotation(Override.class)

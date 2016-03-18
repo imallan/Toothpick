@@ -18,7 +18,7 @@ object Toothpick {
         var bindMethod = mMethodMap[simpleName]
         if (mMethodMap[simpleName] == null) {
             val clazz = Class.forName(activity.packageName + "." + simpleName + "\$\$ViewInjector")
-            bindMethod = clazz.getDeclaredMethod("bind", Activity::class.java)
+            bindMethod = clazz.getDeclaredMethod("bindActivity", Activity::class.java)
             mMethodMap.put(simpleName, bindMethod)
         }
         bindMethod!!.invoke(null, activity)
