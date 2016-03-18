@@ -18,7 +18,7 @@ object Toothpick {
         val simpleName = activity.javaClass.simpleName
         var bindMethod = mMethodMap[simpleName]
         if (mMethodMap[simpleName] == null) {
-            val clazz = Class.forName(activity.packageName + "." + simpleName + "\$\$ViewInjector")
+            val clazz = Class.forName(activity.javaClass.canonicalName + "\$\$ViewInjector")
             bindMethod = clazz.getDeclaredMethod("bindActivity", Activity::class.java)
             mMethodMap.put(simpleName, bindMethod)
         }
@@ -34,27 +34,6 @@ object Toothpick {
             mMethodMapForView.put(simpleName, bindMethod)
         }
         bindMethod!!.invoke(null, obj, view)
-    }
-
-    @Deprecated("No need to use reflections anymore")
-    private fun bind(obj: Any, func: (id: Int) -> View?) {
-        val clazz = obj.javaClass
-        for (method in clazz.declaredMethods) {
-            if (method.isAnnotationPresent(OnClick::class.java)) {
-                val annotation = method.getAnnotation(OnClick::class.java)
-                val values = annotation.value
-                for (id: Int in values) {
-                    val view = func(id)
-                    view?.setOnClickListener({
-                        try {
-                            method.invoke(obj, view)
-                        } catch (e: IllegalArgumentException) {
-                            method.invoke(obj)
-                        }
-                    })
-                }
-            }
-        }
     }
 
 }

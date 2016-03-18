@@ -57,7 +57,7 @@ public class OnClickProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> annotations = new LinkedHashSet<>();
-        annotations.add(OnClickView.class.getCanonicalName());
+        annotations.add(OnClick.class.getCanonicalName());
         return annotations;
     }
 
@@ -73,7 +73,7 @@ public class OnClickProcessor extends AbstractProcessor {
         }
         mFirstRound = false;
         Set<? extends Element> annotatedElements
-                = roundEnv.getElementsAnnotatedWith(OnClickView.class);
+                = roundEnv.getElementsAnnotatedWith(OnClick.class);
         if (annotatedElements == null) {
             mMessager.printMessage(Diagnostic.Kind.NOTE, "No annotation has been found");
             return false;
@@ -105,7 +105,7 @@ public class OnClickProcessor extends AbstractProcessor {
             List<? extends Element> enclosedElements = parentClass.getEnclosedElements();
             for (Element enclosedElement : enclosedElements) {
                 if (enclosedElement.getKind() == ElementKind.METHOD) {
-                    OnClickView annotation = enclosedElement.getAnnotation(OnClickView.class);
+                    OnClick annotation = enclosedElement.getAnnotation(OnClick.class);
                     if (annotation != null) {
                         for (int id : annotation.value()) {
                             bindActivityBuilder.addStatement("activity.findViewById(" + id + ")" +

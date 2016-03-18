@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import com.imallan.toothpick.OnClickView
+import com.imallan.toothpick.OnClick
 import com.imallan.toothpick.Toothpick
 import com.imallan.toothpick.bind
 
@@ -24,13 +24,10 @@ class MainActivity : AppCompatActivity() {
         Log.d("TIMEUSED", (SystemClock.currentThreadTimeMillis() - start).toString())
     }
 
-    @OnClickView(R.id.button_press_me, R.id.button_press_me_2) fun showToast(view: View) {
+    @OnClick(R.id.button_press_me, R.id.button_press_me_2) fun showToast(view: View) {
         toastShort("Pressed ${view.id}")
     }
 
-    //    @OnClickView(R.id.button_press_me_2) fun showThost() {
-    //        toastShort("Pressed")
-    //    }
 }
 
 fun Context.toastShort(msg: String) {
