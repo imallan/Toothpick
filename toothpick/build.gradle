@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = 'com.github.YourUsername'
+group = 'com.github.allan1st'
 
 android {
     compileSdkVersion 23
