@@ -29,10 +29,10 @@ Add it in your root build.gradle at the end of repositories:
 and add to dependencies
 ```groovy
     dependencies {
-	        compile 'com.github.allan1st.Toothpick:annotation:0.5.0'
-    		compile 'com.github.allan1st.Toothpick:toothpick:0.5.0'
-    		kapt 'com.github.allan1st.Toothpick:compiler:0.5.0'
-	}
+         compile 'com.github.allan1st.Toothpick:annotation:0.5.0'
+         compile 'com.github.allan1st.Toothpick:toothpick:0.5.0'
+         kapt 'com.github.allan1st.Toothpick:compiler:0.5.0'
+    }
 ```
 
 ## License
