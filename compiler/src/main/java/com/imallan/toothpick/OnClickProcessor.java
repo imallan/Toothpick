@@ -152,23 +152,13 @@ public class OnClickProcessor extends AbstractProcessor {
                         }
 
                         //everything is fine
-                        ClassName onClickListener = ClassName.get(
-                                VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME,
-                                "OnClickListener"
-                        );
-                        TypeSpec listenerActivity = getListenerTypeSpecForActivity(enclosedElement);
-                        TypeSpec listenerView = getListenerTypeSpecForView(enclosedElement);
-                        bindActivityBuilder.addStatement(
-                                "$T onClick = $L", onClickListener, listenerActivity
-                        );
-                        bindViewBuilder.addStatement(
-                                "$T onClickView = $L", onClickListener, listenerView
-                        );
                         for (int id : annotation.value()) {
-                            bindActivityBuilder.addStatement("activity.findViewById(" + id + ")" +
-                                    ".setOnClickListener(onClick)");
-                            bindViewBuilder.addStatement("view.findViewById(" + id + ")" +
-                                    ".setOnClickListener(onClickView)");
+                            bindActivityBuilder.addStatement(
+                                    "activity.findViewById(" + id + ").setOnClickListener($L)",
+                                    getListenerTypeSpecForActivity(enclosedElement));
+                            bindViewBuilder.addStatement(
+                                    "view.findViewById(" + id + ").setOnClickListener($L)",
+                                    getListenerTypeSpecForView(enclosedElement));
                         }
                     }
                 }
