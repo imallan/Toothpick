@@ -37,6 +37,8 @@ public class OnClickProcessor extends AbstractProcessor {
     private static final String ACTIVITY_TYPE_SIMPLE_NAME = "Activity";
     private static final String VIEW_TYPE_PACKAGE = "android.view";
     private static final String VIEW_TYPE_SIMPLE_NAME = "View";
+    private static final String OBJECT_TYPE_PACKAGE = "java.lang";
+    private static final String OBJECT_TYPE_SIMPLE_NAME = "Object";
 
     private Elements mElementUtils;
     private Filer mFiler;
@@ -89,7 +91,7 @@ public class OnClickProcessor extends AbstractProcessor {
 
             ClassName activity = ClassName.get(ACTIVITY_TYPE_PACKAGE, ACTIVITY_TYPE_SIMPLE_NAME);
             ClassName view = ClassName.get(VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME);
-            ClassName object = ClassName.get("java.lang", "Object");
+            ClassName object = ClassName.get(OBJECT_TYPE_PACKAGE, OBJECT_TYPE_SIMPLE_NAME);
 
             MethodSpec.Builder bindActivityBuilder = MethodSpec.methodBuilder("bindActivity")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -107,11 +109,66 @@ public class OnClickProcessor extends AbstractProcessor {
                 if (enclosedElement.getKind() == ElementKind.METHOD) {
                     OnClick annotation = enclosedElement.getAnnotation(OnClick.class);
                     if (annotation != null) {
+
+                        //validate method
+                        if (enclosedElement.getKind() != ElementKind.METHOD) {
+                            mMessager.printMessage(Diagnostic.Kind.ERROR,
+                                    "@OnClick must be applied to functions[" +
+                                            enclosedElement.getEnclosingElement().toString()
+                                            + "::"
+                                            + enclosedElement.toString() +
+                                            "]", enclosedElement);
+                            return false;
+                        }
+                        Set<Modifier> modifiers = enclosedElement.getModifiers();
+                        if (!modifiers.contains(Modifier.PUBLIC)) {
+                            mMessager.printMessage(Diagnostic.Kind.ERROR,
+                                    "@OnClick must have public access to ViewInjector [" +
+                                            enclosedElement.getEnclosingElement().toString()
+                                            + "::"
+                                            + enclosedElement.toString()
+                                            + "]",
+                                    enclosedElement);
+                            return false;
+                        }
+                        if (modifiers.contains(Modifier.ABSTRACT)) {
+                            mMessager.printMessage(Diagnostic.Kind.ERROR,
+                                    "@OnClick must be applied to non-abstract functions[" +
+                                            enclosedElement.getEnclosingElement().toString()
+                                            + "::"
+                                            + enclosedElement.toString() +
+                                            "]", enclosedElement);
+                            return false;
+                        }
+                        if (((ExecutableElement) enclosedElement).getParameters().size() > 1) {
+                            mMessager.printMessage(Diagnostic.Kind.ERROR,
+                                    "@OnClick methods must have exact one View parameter " +
+                                            "or no parameters" +
+                                            enclosedElement.getEnclosingElement().toString()
+                                            + "::"
+                                            + enclosedElement.toString() +
+                                            "]", enclosedElement);
+                            return false;
+                        }
+
+                        //everything is fine
+                        ClassName onClickListener = ClassName.get(
+                                VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME,
+                                "OnClickListener"
+                        );
+                        TypeSpec listenerActivity = getListenerTypeSpecForActivity(enclosedElement);
+                        TypeSpec listenerView = getListenerTypeSpecForView(enclosedElement);
+                        bindActivityBuilder.addStatement(
+                                "$T onClick = $L", onClickListener, listenerActivity
+                        );
+                        bindViewBuilder.addStatement(
+                                "$T onClickView = $L", onClickListener, listenerView
+                        );
                         for (int id : annotation.value()) {
                             bindActivityBuilder.addStatement("activity.findViewById(" + id + ")" +
-                                    ".setOnClickListener($L)", getTypeSpec(enclosedElement));
+                                    ".setOnClickListener(onClick)");
                             bindViewBuilder.addStatement("view.findViewById(" + id + ")" +
-                                    ".setOnClickListener($L)", getTypeSpecForView(enclosedElement));
+                                    ".setOnClickListener(onClickView)");
                         }
                     }
                 }
@@ -141,8 +198,7 @@ public class OnClickProcessor extends AbstractProcessor {
         return true;
     }
 
-
-    private TypeSpec getTypeSpecForView(Element annotatedElement) {
+    private TypeSpec getListenerTypeSpecForView(Element annotatedElement) {
         ClassName view = ClassName.get(VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME);
         ClassName onClickListener = ClassName.get(
                 VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME,
@@ -172,7 +228,7 @@ public class OnClickProcessor extends AbstractProcessor {
                 .build();
     }
 
-    private TypeSpec getTypeSpec(Element annotatedElement) {
+    private TypeSpec getListenerTypeSpecForActivity(Element annotatedElement) {
         ClassName view = ClassName.get(VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME);
         ClassName onClickListener = ClassName.get(
                 VIEW_TYPE_PACKAGE, VIEW_TYPE_SIMPLE_NAME,

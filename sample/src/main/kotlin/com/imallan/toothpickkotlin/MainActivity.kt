@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         Log.d("TIMEUSED", (SystemClock.currentThreadTimeMillis() - start).toString())
     }
 
-    @OnClick(R.id.button_press_me, R.id.button_press_me_2) fun showToast(view: View) {
+    @OnClick(R.id.button_press_me, R.id.button_press_me_2) fun showToast(view: View, context: Context) {
         toastShort("Pressed ${view.id}")
     }
 
