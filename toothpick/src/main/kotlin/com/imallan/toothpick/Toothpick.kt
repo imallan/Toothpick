@@ -5,7 +5,6 @@ package com.imallan.toothpick
 import android.app.Activity
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
-import android.util.Log
 import android.view.View
 import java.lang.reflect.Method
 import java.util.*
@@ -16,24 +15,23 @@ object Toothpick {
     private val mMethodMapForView = LinkedHashMap<String, Method>();
 
     fun bind(activity: Activity) {
-        val simpleName = activity.javaClass.simpleName
-        var bindMethod = mMethodMap[simpleName]
-        if (mMethodMap[simpleName] == null) {
-            val clazz = Class.forName(activity.javaClass.canonicalName + "\$\$ViewInjector")
+        val injectorName = "${activity.javaClass.canonicalName}\$\$ViewInjector"
+        var bindMethod = mMethodMap[injectorName]
+        if (mMethodMap[injectorName] == null) {
+            val clazz = Class.forName(injectorName)
             bindMethod = clazz.getDeclaredMethod("bindActivity", Any::class.java, Activity::class.java)
-            mMethodMap.put(simpleName, bindMethod)
+            mMethodMap.put(injectorName, bindMethod)
         }
         bindMethod!!.invoke(null, activity, activity)
     }
 
     fun bind(obj: Any, view: View) {
-        val simpleName = obj.javaClass.simpleName
-        var bindMethod = mMethodMap[simpleName]
-        Log.d("TOOTHPICK", "CLASS ${obj.javaClass.canonicalName}")
-        if (mMethodMapForView[simpleName] == null) {
-            val clazz = Class.forName("${obj.javaClass.name}\$\$ViewInjector")
+        val injectorName = "${obj.javaClass.name}\$\$ViewInjector"
+        var bindMethod = mMethodMap[injectorName]
+        if (mMethodMapForView[injectorName] == null) {
+            val clazz = Class.forName(injectorName)
             bindMethod = clazz.getDeclaredMethod("bindView", Any::class.java, View::class.java)
-            mMethodMapForView.put(simpleName, bindMethod)
+            mMethodMapForView.put(injectorName, bindMethod)
         }
         bindMethod!!.invoke(null, obj, view)
     }
