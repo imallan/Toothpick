@@ -15,6 +15,7 @@ import com.imallan.toothpick.bind
 class MainActivity : AppCompatActivity() {
 
     val mButton: Button by bind(R.id.button_press_me)
+    lateinit var mView: MyView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,14 +23,32 @@ class MainActivity : AppCompatActivity() {
         val start = SystemClock.currentThreadTimeMillis()
         Toothpick.bind(this, window.decorView)
         Log.d("TIMEUSED", (SystemClock.currentThreadTimeMillis() - start).toString())
+
+        mView = MyView(window.decorView)
     }
 
     @OnClick(R.id.button_press_me) fun showToast(view: View) {
         toastShort("Pressed ${view.id}")
     }
 
-    @OnClick(R.id.button_press_me_2) fun showToast2() {
-        toastShort("Pressed")
+//    @OnClick(R.id.button_press_me_2) fun showToast2() {
+//        toastShort("Pressed")
+//    }
+
+    inner class MyView {
+
+        val mView: View
+
+        constructor(view: View) {
+            mView = view
+            Toothpick.bind(this, view)
+        }
+
+        @OnClick(R.id.button_press_me_2)
+        fun press() {
+            toastShort("Pressed")
+        }
+
     }
 }
 

@@ -5,6 +5,7 @@ package com.imallan.toothpick
 import android.app.Activity
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.View
 import java.lang.reflect.Method
 import java.util.*
@@ -19,17 +20,18 @@ object Toothpick {
         var bindMethod = mMethodMap[simpleName]
         if (mMethodMap[simpleName] == null) {
             val clazz = Class.forName(activity.javaClass.canonicalName + "\$\$ViewInjector")
-            bindMethod = clazz.getDeclaredMethod("bindActivity", Activity::class.java)
+            bindMethod = clazz.getDeclaredMethod("bindActivity", Any::class.java, Activity::class.java)
             mMethodMap.put(simpleName, bindMethod)
         }
-        bindMethod!!.invoke(null, activity)
+        bindMethod!!.invoke(null, activity, activity)
     }
 
     fun bind(obj: Any, view: View) {
         val simpleName = obj.javaClass.simpleName
         var bindMethod = mMethodMap[simpleName]
+        Log.d("TOOTHPICK", "CLASS ${obj.javaClass.canonicalName}")
         if (mMethodMapForView[simpleName] == null) {
-            val clazz = Class.forName(obj.javaClass.canonicalName + "\$\$ViewInjector")
+            val clazz = Class.forName("${obj.javaClass.name}\$\$ViewInjector")
             bindMethod = clazz.getDeclaredMethod("bindView", Any::class.java, View::class.java)
             mMethodMapForView.put(simpleName, bindMethod)
         }
@@ -41,20 +43,20 @@ object Toothpick {
 fun <V : View> Activity.bind(@IdRes id: Int): Lazy<V> {
     return lazy {
         @Suppress("UNCHECKED_CAST")
-        (findViewById(id)  as V)
+        (findViewById(id) as V)
     }
 }
 
 fun <V : View> Fragment.bind(@IdRes id: Int): Lazy<V> {
     return lazy {
         @Suppress("UNCHECKED_CAST")
-        (view?.findViewById(id)  as V)
+        (view?.findViewById(id) as V)
     }
 }
 
 fun <V : View> bind(@IdRes id: Int, view: View?): Lazy<V> {
     return lazy {
         @Suppress("UNCHECKED_CAST")
-        (view?.findViewById(id)  as V)
+        (view?.findViewById(id) as V)
     }
 }

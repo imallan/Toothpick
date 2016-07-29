@@ -95,6 +95,7 @@ public class OnClickProcessor extends AbstractProcessor {
 
             MethodSpec.Builder bindActivityBuilder = MethodSpec.methodBuilder("bindActivity")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameter(object, "object", Modifier.FINAL)
                     .addParameter(activity, "activity", Modifier.FINAL)
                     .returns(void.class);
 
@@ -166,8 +167,16 @@ public class OnClickProcessor extends AbstractProcessor {
             MethodSpec bindActivity = bindActivityBuilder.build();
             MethodSpec bindView = bindViewBuilder.build();
 
+            String innerClassIdentifier = "";
+            while (parentClass.getEnclosingElement().getKind() != ElementKind.PACKAGE) {
+                innerClassIdentifier += parentClass.getSimpleName();
+                parentClass = parentClass.getEnclosingElement();
+            }
+            if (innerClassIdentifier.length() > 0) {
+                innerClassIdentifier = "$" + innerClassIdentifier;
+            }
             TypeSpec viewInjector =
-                    TypeSpec.classBuilder(parentClass.getSimpleName() + "$$ViewInjector")
+                    TypeSpec.classBuilder(parentClass.getSimpleName() + innerClassIdentifier + "$$ViewInjector")
                             .addModifiers(Modifier.PUBLIC)
                             .addMethod(bindActivity)
                             .addMethod(bindView)
@@ -236,9 +245,9 @@ public class OnClickProcessor extends AbstractProcessor {
         ClassName parentName = ClassName.get(enclosingElement.getEnclosingElement().toString(),
                 enclosingElement.getSimpleName().toString());
         if (((ExecutableElement) annotatedElement).getParameters().size() > 0) {
-            builder.addStatement("(($T)activity).$L(v)", parentName, annotatedElement.getSimpleName());
+            builder.addStatement("(($T)object).$L(v)", parentName, annotatedElement.getSimpleName());
         } else {
-            builder.addStatement("(($T)activity).$L()", parentName, annotatedElement.getSimpleName());
+            builder.addStatement("(($T)object).$L()", parentName, annotatedElement.getSimpleName());
         }
         return TypeSpec.anonymousClassBuilder("")
                 .addSuperinterface(onClickListener)
