@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         constructor(view: View) {
             mView = view
-            Toothpick.bind(this, view)
+            Toothpick.bind(this@MyView, view)
         }
 
         @OnClick(R.id.button_press_me_2)

@@ -17,7 +17,7 @@ object Toothpick {
     fun bind(activity: Activity) {
         val injectorName = "${activity.javaClass.canonicalName}\$\$ViewInjector"
         var bindMethod = mMethodMap[injectorName]
-        if (mMethodMap[injectorName] == null) {
+        if (bindMethod == null) {
             val clazz = Class.forName(injectorName)
             bindMethod = clazz.getDeclaredMethod("bindActivity", Any::class.java, Activity::class.java)
             mMethodMap.put(injectorName, bindMethod)
@@ -27,8 +27,8 @@ object Toothpick {
 
     fun bind(obj: Any, view: View) {
         val injectorName = "${obj.javaClass.name}\$\$ViewInjector"
-        var bindMethod = mMethodMap[injectorName]
-        if (mMethodMapForView[injectorName] == null) {
+        var bindMethod = mMethodMapForView[injectorName]
+        if (bindMethod == null) {
             val clazz = Class.forName(injectorName)
             bindMethod = clazz.getDeclaredMethod("bindView", Any::class.java, View::class.java)
             mMethodMapForView.put(injectorName, bindMethod)
